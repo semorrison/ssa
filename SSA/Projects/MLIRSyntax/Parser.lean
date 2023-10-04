@@ -68,7 +68,7 @@ private def mkNonTerminalParser (syntaxcat : Name)
 
 -- TODO: do we need this copy of the environment, or can I remove it from one of the two?
 def regionParser : @ParseFun MLIR.AST.Region := 
-  fun env : Lean.Environment => mkNonTerminalParser `MLIR.AST.Region (elabRegion env) env
+  fun env : Lean.Environment => mkNonTerminalParser `mlir_region (elabRegion env) env
 
 private def parseFile (env: Lean.Environment)
   (parser: @ParseFun ParseOutput)
@@ -87,9 +87,7 @@ private def isFile (p: System.FilePath) : IO Bool := do
 def runParser  (parser : @ParseFun ParseOutput) (fileName : String) : IO (Option ParseOutput) := do
   initSearchPath (← Lean.findSysroot) ["build/lib"]
   let modules : List Import := [⟨`SSA.Projects.MLIRSyntax.EDSL, false⟩]
-  IO.println "DEBUG: before importModules"
   let env ← importModules modules {}
-  IO.println "DEBUG: after importModules"
   let filePath := System.mkFilePath [fileName]
   if !(← isFile filePath) then
     throw <| IO.userError s!"File {fileName} does not exist"

@@ -14,6 +14,7 @@ lean_exe mlirnatural {
 
 lean_exe opt {
   root := `SSA.Projects.InstCombine.LLVM.Opt
+  supportInterpreter := true
 }
 -- -- PROJECTS
 -- -- ========
