@@ -12,5 +12,5 @@ def regionTransform (region : Region) : Except ParseError
     | Except.ok res => Except.ok res
 
 def parseIComFromFile (fileName : String) :
- IO (Option (Σ (Γ' : Context) (ty : InstCombine.Ty), Com Γ' ty)) :=
+ IO (Option (Σ (Γ' : Context) (ty : InstCombine.Ty), Com Γ' ty)) := do
  parseRegionFromFile fileName regionTransform

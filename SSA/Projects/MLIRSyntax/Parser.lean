@@ -1,5 +1,6 @@
 import SSA.Projects.MLIRSyntax.AST
 import SSA.Projects.MLIRSyntax.EDSL
+import Std.Util.TermUnsafe
 import Lean
 
 open Lean
@@ -86,7 +87,9 @@ private def isFile (p: System.FilePath) : IO Bool := do
 def runParser  (parser : @ParseFun ParseOutput) (fileName : String) : IO (Option ParseOutput) := do
   initSearchPath (← Lean.findSysroot) ["build/lib"]
   let modules : List Import := [⟨`SSA.Projects.MLIRSyntax.EDSL, false⟩]
+  IO.println "DEBUG: before importModules"
   let env ← importModules modules {}
+  IO.println "DEBUG: after importModules"
   let filePath := System.mkFilePath [fileName]
   if !(← isFile filePath) then
     throw <| IO.userError s!"File {fileName} does not exist"

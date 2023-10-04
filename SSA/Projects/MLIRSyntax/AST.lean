@@ -1,5 +1,4 @@
-import SSA.Experimental.IntrinsicAsymptotics
-open Lean PrettyPrinter
+open Lean PrettyPrinter Std
 
 namespace MLIR.AST
 
@@ -201,8 +200,6 @@ def Region.args : Region → List TypedSSAVal
 def Region.ops (region: Region) : List (Op) :=
   match region with
   | Region.mk _ _ ops => ops
-
-#check Format
 
 mutual
 partial def docAttrVal : AttrValue → Format
