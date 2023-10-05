@@ -34,7 +34,7 @@ unsafe def elabIntoEIO {α : Type} : Lean.Environment → Lean.Name → Lean.Syn
   let resE : EIO Exception α := elabIntoCore typeName stx |>.run' {fileName := "parserHack", fileMap := default} {env := env}
   let errMsg : String ← resE.toIO' >>= printException |>.toEIO (fun _ => "failed converting error message")
   resE.adaptExcept (fun _ => 
-    s!"Error in elaborator hack:\n{errMsg}")
+    s!"Error in elaborator hack:¬{errMsg}")
 
 /--
   Parse `Lean.Syntax` into `MLIR.AST.Region`.
@@ -83,6 +83,7 @@ private def parseFile (env: Lean.Environment)
    : IO (Option ParseOutput) := do
   let lines <- IO.FS.lines filepath
   let fileStr := lines.foldl (λ s₁ s₂ => s₁ ++ "\n" ++ s₂) ""
+  IO.println s!"[DEBUG] fileStr=\n{fileStr}"
   let parsed ← EIO.toIO' <| parser env fileStr
   match parsed with
     | .ok parseOutput => return parseOutput
