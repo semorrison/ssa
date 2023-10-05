@@ -75,14 +75,14 @@ private def mkNonTerminalParser (syntaxcat : Name)
 
 -- TODO: do we need this copy of the environment, or can I remove it from one of the two?
 def regionParser : @ParseFun MLIR.AST.Region := 
-  fun env : Lean.Environment => mkNonTerminalParser `term (elabRegion env) env
+  fun env : Lean.Environment => mkNonTerminalParser `mlir_region (elabRegion env) env
 
 private def parseFile (env: Lean.Environment)
   (parser: @ParseFun ParseOutput)
   (filepath: System.FilePath)
    : IO (Option ParseOutput) := do
   let lines <- IO.FS.lines filepath
-  let fileStr := "[mlir_region|" ++ (lines.foldl (λ s₁ s₂ => s₁ ++ "\n" ++ s₂) "") ++ "]"
+  let fileStr := lines.foldl (λ s₁ s₂ => s₁ ++ "\n" ++ s₂) ""
   IO.println s!"[DEBUG] fileStr=\n{fileStr}"
   let parsed ← EIO.toIO' <| parser env fileStr
   match parsed with
