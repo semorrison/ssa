@@ -24,10 +24,17 @@ unsafe def elabIntoCore {α : Type} : Lean.Name → Lean.Syntax → CoreM α :=
   fun typeName stx => do
   elabIntoMeta typeName stx |>.run'
 
+
+def printException : Except Exception α → IO String 
+  | Except.ok _ => throw <| IO.userError "printException called on Except.ok"
+  | Except.error e => e.toMessageData.toString
+
 unsafe def elabIntoEIO {α : Type} : Lean.Environment → Lean.Name → Lean.Syntax → EIO ParseError α :=
   fun env typeName stx => do
   let resE : EIO Exception α := elabIntoCore typeName stx |>.run' {fileName := "parserHack", fileMap := default} {env := env}
-  resE.adaptExcept (fun _ => "Error in elaborator hack")
+  let errMsg : String ← resE.toIO' >>= printException |>.toEIO (fun _ => "failed converting error message")
+  resE.adaptExcept (fun _ => 
+    s!"Error in elaborator hack:\n{errMsg}")
 
 /--
   Parse `Lean.Syntax` into `MLIR.AST.Region`.
@@ -79,7 +86,7 @@ private def parseFile (env: Lean.Environment)
   let parsed ← EIO.toIO' <| parser env fileStr
   match parsed with
     | .ok parseOutput => return parseOutput
-    | .error msg => IO.println s!"error parsing {filepath}:\n{msg}"; return none
+    | .error msg => IO.println s!"Error parsing {filepath}:\n{msg}"; return none
 
 private def isFile (p: System.FilePath) : IO Bool := do
       return (<- p.metadata).type == IO.FS.FileType.file
